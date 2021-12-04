@@ -1,6 +1,9 @@
 package com.chen.netty;
 
 
+import com.chen.enums.MsgActionEnum;
+import com.chen.pojo.dao.DataContent;
+import com.chen.utils.JsonUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -23,17 +26,35 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 
     @Override
     protected void channelRead0(ChannelHandlerContext chc, TextWebSocketFrame twsf) throws Exception {
-        log.info("读取客户端发来的消息");
+
 //       1.  获取客户端传输过来的消息
         String content = twsf.text();
+        log.info("读取客户端发来的消息："+content);
 //        获取客户端通道
         Channel currentChannel = chc.channel();
-        // 将数据刷新到客户端上
-        users.writeAndFlush(
-                new TextWebSocketFrame(
-                        "[服务器在]" + LocalDateTime.now()
-                                + "接受到消息, 消息为：" + content));
+//      将获取的数据转为json格式，对应dataContent字段
+        DataContent dataContent= JsonUtils.jsonToPojo(content,DataContent.class);
+//        获取状态
+        Integer action= dataContent.getAction();
+//        2。判断消息类型，根据不同的类型来处理不同的业务
+        if (action== MsgActionEnum.CONNECT.type){
+//          2.1  当websocket 第一次open的时候，初始化channel，把用的channel和userid关联起来
+            String senderId=dataContent.getChatMsg().getSenderId();//获取发送者id
+//            通过hash将用户id和通道关联起来
+            UserChannelHash.put(senderId,currentChannel);
+// 测试
+            for (Channel c : users) {
+                System.out.println(c.id().asLongText());
+            }
+            UserChannelHash.output();
+        }else{
+            // 将数据刷新到客户端上
+            users.writeAndFlush(
+                    new TextWebSocketFrame(
+                            "[服务器在]" + LocalDateTime.now()
+                                    + "接受到消息, 消息为：" + content));
 
+        }
     }
 
     /**
