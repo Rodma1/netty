@@ -2,7 +2,10 @@ package com.chen.netty;
 
 
 import com.chen.enums.MsgActionEnum;
-import com.chen.pojo.dao.DataContent;
+import com.chen.service.ChatMsgService;
+import com.chen.utils.SpringBeanUtil;
+import com.chen.vo.params.ChatMsgParam;
+import com.chen.vo.params.DataContent;
 import com.chen.utils.JsonUtils;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -12,6 +15,7 @@ import io.netty.channel.group.DefaultChannelGroup;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
@@ -39,7 +43,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 //        2。判断消息类型，根据不同的类型来处理不同的业务
         if (action== MsgActionEnum.CONNECT.type){
 //          2.1  当websocket 第一次open的时候，初始化channel，把用的channel和userid关联起来
-            String senderId=dataContent.getChatMsg().getSenderId();//获取发送者id
+            String senderId=dataContent.getChatMsgParam().getSenderId();//获取发送者id
 //            通过hash将用户id和通道关联起来
             UserChannelHash.put(senderId,currentChannel);
 // 测试
@@ -47,7 +51,16 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
                 System.out.println(c.id().asLongText());
             }
             UserChannelHash.output();
-        }else{
+        } else if(action==MsgActionEnum.CHAT.type){//如果是等于2，就是聊天消息
+            //  2.2  聊天类型的消息，把聊天记录保存到数据库，同时标记消息的签收状态[未签收]
+//            获取聊天对象
+            ChatMsgParam chatMsgParam = dataContent.getChatMsgParam();
+//            SpringBoot启动时就加载此类
+            ChatMsgService chatMsgService=
+                    SpringBeanUtil.getBean(ChatMsgService.class);
+            // 保存消息到数据库，并且标记为 未签收
+            long msgId=chatMsgService.saveMsg(chatMsgParam);
+            log.info("保存了id为："+msgId+"聊天消息");
             // 将数据刷新到客户端上
             users.writeAndFlush(
                     new TextWebSocketFrame(

@@ -7,7 +7,7 @@
 <body>
 
 <div>发送消息:</div>
-<input type="text" value="" id="msgContent"/>
+<input type="text"  id="msgContent"/>
 <input type="button" value="点我发送" onclick="CHAT.chat()"/>
 
 <div>接受消息：</div>
@@ -36,9 +36,9 @@
                         //    获取当前用户id
                         var myId = "1"
                         //    构建chatMsg聊天消息
-                        var chatMsg = new app.ChatMsg(myId, null, null, null);
+                        var chatMsgParam = new app.ChatMsgParam(myId, null, null, null);
                         //    第一次(或重连)初始化连接
-                        var dataContent = new app.DataContent(app.CONNECT, chatMsg, null);
+                        var dataContent = new app.DataContent(app.CONNECT, chatMsgParam, null);
                         //    转变为string类型发送到服务器
                         CHAT.chats(JSON.stringify(dataContent));
                     },
@@ -70,13 +70,15 @@
             if (CHAT.socket != null && CHAT.socket != undefined && CHAT.socket.readyState == WebSocket.OPEN) {
                 //    获取当前用户id
                 var myId = "1"
+                //接受者id
+                var youId="1"
                 //获取发送消息框中所输入的内容
                 var msg = document.getElementById("msgContent");
-                console.log(msg)
+                console.log(msg.value)
                 //    构建chatMsg聊天消息
-                var chatMsg = new app.ChatMsg(myId, null, msg.value, null);
+                var chatMsgParam = new app.ChatMsgParam(myId, youId, msg.value, null);
                 //    第一次(或重连)初始化连接
-                var dataContent = new app.DataContent(2, chatMsg, null);
+                var dataContent = new app.DataContent(app.CHAT, chatMsgParam, null);
                 //将客户输入的消息进行发送
                 CHAT.socket.send(JSON.stringify(dataContent));
             } else {
@@ -94,7 +96,7 @@
             }
         }
     };
-
+    //进入页面就初始化连接
     CHAT.init();
 
 </script>

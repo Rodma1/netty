@@ -1,15 +1,34 @@
 package com.chen.pojo.dao;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.io.Serializable;
+import java.util.Date;
 
 @Data
-public class ChatMsg implements Serializable {
-    private static final long serialVersionUID = 3611169682695799175L;
 
-    private String senderId;		// 发送者的用户id
-    private String receiverId;		// 接受者的用户id
-    private String msg;				// 聊天内容
-    private String msgId;			// 用于消息的签收
+public class ChatMsg {
+//    如果不加使用的是分布式id
+//    @TableId(type = IdType.AUTO)
+    private Long id;
+
+    private String sendUserId;
+
+    private String acceptUserId;
+
+    private String msg;
+
+    /**
+     * 消息是否签收状态
+     * 1：签收
+     * 0：未签收
+     */
+    private Integer signFlag;
+
+    /**
+     * 发送请求的事件
+     */
+    private Date createTime;
 }
