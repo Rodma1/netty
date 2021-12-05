@@ -19,8 +19,8 @@ public class UserChannelHash {
         hashMap.put(senderId,channel);
     }
 //    获取值
-    public static void get(String senderId){
-        hashMap.get(senderId);
+    public static Channel get(String senderId){
+        return hashMap.get(senderId);
     }
 //    输出
     public static void output(){

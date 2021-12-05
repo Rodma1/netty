@@ -61,11 +61,37 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
             // 保存消息到数据库，并且标记为 未签收
             long msgId=chatMsgService.saveMsg(chatMsgParam);
             log.info("保存了id为："+msgId+"聊天消息");
-            // 将数据刷新到客户端上
-            users.writeAndFlush(
-                    new TextWebSocketFrame(
-                            "[服务器在]" + LocalDateTime.now()
-                                    + "接受到消息, 消息为：" + content));
+//            // 将数据刷新到客户端上
+//            users.writeAndFlush(
+//                    new TextWebSocketFrame(
+//                            "[服务器在]" + LocalDateTime.now()
+//                                    + "接受到消息, 消息为：" + content));
+//            将消息id存入,id转为string类型
+            chatMsgParam.setMsgId(String.valueOf(msgId));
+            dataContent.setChatMsgParam(chatMsgParam);
+            /**
+             * 发送消息
+             * 我们这里简单的测试一下
+             */
+            // 从全局用户Channel关系中获取接受方的channel
+            Channel receiverChannel=UserChannelHash.get(chatMsgParam.getReceiverId());
+//            如果通道为空说明不在线,就推送消息
+            if (receiverChannel==null){
+                log.info("用户"+chatMsgParam.getReceiverId()+"离线,没有通道");
+            }else{
+                // 当receiverChannel不为空的时候，从ChannelGroup去查找对应的channel是否存在
+                Channel findChannel = users.find(receiverChannel.id());
+                if (findChannel != null) {
+                    // 用户在线，通过通道将消息推送给用户
+                    receiverChannel.writeAndFlush(
+                            new TextWebSocketFrame(
+                                    JsonUtils.objectToJson(dataContent)));
+                    log.info("消息已经发送给了id为"+chatMsgParam.getReceiverId()+"的用户");
+                } else {
+                    log.info("用户"+chatMsgParam.getReceiverId()+"离线,从线程池里面找不到指定通道");
+                    // 用户离线 TODO 推送消息
+                }
+            }
 
         }
     }
