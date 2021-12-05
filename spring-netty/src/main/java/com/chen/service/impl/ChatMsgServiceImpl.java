@@ -1,14 +1,18 @@
 package com.chen.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.chen.enums.MsgSignFlagEnum;
 import com.chen.pojo.dao.ChatMsg;
 import com.chen.pojo.mapper.ChatMsgMapper;
 import com.chen.service.ChatMsgService;
+import com.chen.vo.Result;
 import com.chen.vo.params.ChatMsgParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
+
 //实现服务层的接口
 @Service
 public class ChatMsgServiceImpl implements ChatMsgService {
@@ -34,5 +38,24 @@ public class ChatMsgServiceImpl implements ChatMsgService {
 
 
         return chat.getId();
+    }
+
+    /**
+     * 获取未签收的消息列表
+     * param：接收消息的用户id
+     *
+     * @param acceptUserId
+     */
+    @Override
+    public Result getNotReadMsgList(String acceptUserId) {
+//        初始化mapper映射,查询Article数据表的信息
+        LambdaQueryWrapper<ChatMsg> queryWrapper=new LambdaQueryWrapper<>();
+//        状态为零
+        queryWrapper.eq(ChatMsg::getSignFlag,0);
+//        接收消息的用户id
+        queryWrapper.eq(ChatMsg::getAcceptUserId,acceptUserId);
+//        获取列表
+
+        return Result.success(chatMsgMapper.selectList(queryWrapper));
     }
 }
