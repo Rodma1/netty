@@ -2,6 +2,7 @@ window.app={
     //和后段枚举一一对应
     CONNECT: 1,    // "第一次(或重连)初始化连接"
     CHAT:2,//聊天消息
+    SIGNED: 3,     // "消息签收"),
     /**
      * 和后端的ChatMsg 聊天模型对象保持一致
      * @param {Object} senderId

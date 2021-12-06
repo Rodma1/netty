@@ -34,7 +34,7 @@
                     CHAT.socket.onopen = function () {
                         console.log("连接建立成功...");
                         //    获取当前用户id
-                        var myId = "1"
+                        var myId = "2"
                         //    构建chatMsg聊天消息
                         var chatMsgParam = new app.ChatMsgParam(myId, null, null, null);
                         //    第一次(或重连)初始化连接
@@ -50,12 +50,17 @@
                         },
                         CHAT.socket.onmessage = function (e) {
                             console.log("接受到消息：" + e.data);
-
+                            var dataConetent = JSON.parse(e.data);
                             //获取浏览器获取到的消息
                             var receiveMsg = document.getElementById("receiveMsg");
                             var html = receiveMsg.innerHTML;//获取本对象原有的内容
                             //嵌入新的内容
                             receiveMsg.innerHTML = html + "<br/>" + e.data;
+                            //接到到消息之后，对消息进行签收
+                            var dataContentSign=new app.DataContent(app.SIGNED,null,dataConetent.chatMsgParam.msgId);
+                            //发送数据
+                            CHAT.chats(JSON.stringify(dataContentSign));
+                            console.log("消息被签收")
                         }
                 } catch (e) {
                     console.log(e.message);
@@ -69,9 +74,9 @@
             //如果当前WebSocket 状态已经连接，无需重复初始化WebSocket
             if (CHAT.socket != null && CHAT.socket != undefined && CHAT.socket.readyState == WebSocket.OPEN) {
                 //    获取当前用户id
-                var myId = "1"
+                var myId = "2"
                 //接受者id
-                var youId="2"
+                var youId="3"
                 //获取发送消息框中所输入的内容
                 var msg = document.getElementById("msgContent");
                 console.log(msg.value)
