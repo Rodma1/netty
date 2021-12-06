@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.chen.pojo.mapper.ChatMsgMapper" >
+    <!-- 批处理更新消息为已签收
+    UPDATE chat_msg SET sign_flag = 1 WHERE id in ('item1', 'item2', 'item3);    -->
+    <update id="batchUpdateMsgSigned" parameterType="java.util.List">
+        update chat_msg set sign_flag = 1 where id in
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+
+    </update>
+</mapper>

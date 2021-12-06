@@ -16,4 +16,11 @@ public interface ChatMsgService {
      * param：接收消息的用户id
      */
     public Result getNotReadMsgList(String acceptUserId);
+
+    /**
+     * 批量更新消息
+     * @param msgIdsStr
+     * @return
+     */
+    public Result updateMsgList(String msgIdsStr);
 }

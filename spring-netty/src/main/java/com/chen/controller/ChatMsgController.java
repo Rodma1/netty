@@ -37,5 +37,13 @@ public class ChatMsgController {
 //        查询列表
         return chatMsgService.getNotReadMsgList(acceptUserId);
     }
+    /**
+     * 批量更新消息
+     */
+    @PostMapping("/upmsg")
+    public  Result updateMsg(String MsgIds){
+        return chatMsgService.updateMsgList(MsgIds);
+    }
+
 
 }
